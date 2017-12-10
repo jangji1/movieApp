@@ -7,9 +7,7 @@ class App extends Component {
   // Render: componentWillMount() -> redner() -> componentDidMount()
   // update componentWillReceiveProps() -> sholdComponentUpdate() -> componentWillUpdate() -> render() -> componentDidUpdate()
 
-  state = {
-
-  }
+  state = {}
 
   componentDidMount(){
     this._getMovies();
@@ -17,13 +15,15 @@ class App extends Component {
 
   _renderMovies = () => {
     const movies = this.state.movies.map(movie => {
-      return <Movie
-        title={movie.title_english}
-        poster={movie.medium_cover_image}
-        key={movie.id}
-        genres={movie.genres}
-        synopsis={movie.synopsis}
-      />
+      return (
+        <Movie
+          title={movie.title_english}
+          poster={movie.medium_cover_image}
+          key={movie.id}
+          genres={movie.genres}
+          synopsis={movie.synopsis}
+        />
+      );
     }) // 컴포넌트의 key는 인덱스를 사용하는 것은 좋지 않다. 느리다.
 
     return movies
@@ -37,16 +37,17 @@ class App extends Component {
   }
 
   _callApi = () => {
-    return fetch('https://yts.am/api/v2/list_movies.json?sort_by=rating')
+    return fetch('https://yts.am/api/v2/list_movies.json?sort_by=download_count')
     .then(response => response.json())
     .then(json => json.data.movies) // arrow function은 return을 할 필요 없음. return 뜻이 내재되어 있음
     .catch(err => console.log(err))
   }
 
   render() {
+    const { movies } = this.state;
     return (
-      <div className="App">
-        {this.state.movies ? this._renderMovies() : 'Loading'}
+      <div className={movies ? "App" : "App--loading"}>
+        {movies ? this._renderMovies() : "Loading"}
       </div>
     );
   }
