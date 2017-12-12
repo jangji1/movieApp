@@ -1,34 +1,53 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Movie from './Movie';
 
-const movies = [
-  {
-    title : "Matrix",
-    poster : "https://upload.wikimedia.org/wikipedia/en/thumb/c/c1/The_Matrix_Poster.jpg/220px-The_Matrix_Poster.jpg"
-  },
-  {
-    title : "Full Metal Jacket",
-    poster : "https://upload.wikimedia.org/wikipedia/en/9/99/Full_Metal_Jacket_poster.jpg"
-  },
-  {
-    title : "Oldboy",
-    poster : "https://upload.wikimedia.org/wikipedia/en/6/67/Oldboykoreanposter.jpg"
-  },
-  {
-    title : "Star Wars",
-    poster : "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/220px-Star_Wars_Logo.svg.png"
-  }
-]
-
 class App extends Component {
+
+  // Render: componentWillMount() -> redner() -> componentDidMount()
+  // update componentWillReceiveProps() -> sholdComponentUpdate() -> componentWillUpdate() -> render() -> componentDidUpdate()
+
+  state = {}
+
+  componentDidMount(){
+    this._getMovies();
+  }
+
+  _renderMovies = () => {
+    const movies = this.state.movies.map(movie => {
+      return (
+        <Movie
+          title={movie.title_english}
+          poster={movie.medium_cover_image}
+          key={movie.id}
+          genres={movie.genres}
+          synopsis={movie.synopsis}
+        />
+      );
+    }) // 컴포넌트의 key는 인덱스를 사용하는 것은 좋지 않다. 느리다.
+
+    return movies
+  }
+
+  _getMovies = async () => {
+    const movies = await this._callApi()
+    this.setState({
+      movies
+    }) // movies: movies 와 같음
+  }
+
+  _callApi = () => {
+    return fetch('https://yts.am/api/v2/list_movies.json?sort_by=download_count')
+    .then(response => response.json())
+    .then(json => json.data.movies) // arrow function은 return을 할 필요 없음. return 뜻이 내재되어 있음
+    .catch(err => console.log(err))
+  }
+
   render() {
+    const { movies } = this.state;
     return (
-      <div className="App">
-        {movies.map(movie => {
-          <Movie title={movie.tittle} poster={movie.poster} />
-        })}
+      <div className={movies ? "App" : "App--loading"}>
+        {movies ? this._renderMovies() : "Loading"}
       </div>
     );
   }
